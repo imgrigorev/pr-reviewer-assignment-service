@@ -1,0 +1,43 @@
+services:
+  backend:
+    build:
+      dockerfile: Dockerfile
+    container_name: pr_service
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - 8080:8083
+    networks:
+      - default-network
+
+  db:
+    image: postgres:15.4-alpine
+    container_name: pr_service_db
+    env_file:
+      - .env
+    ports:
+      - "54321:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U pr" ]
+      interval: 5s
+      timeout: 2s
+      retries: 3
+    networks:
+      - default-network
+
+  migrator:
+    build:
+      context: .
+      dockerfile: migration.Dockerfile
+    restart: on-failure
+    environment:
+      DB_HOST: db
+    depends_on:
+      - db
+    networks:
+      - default-network
+
+networks:
+  default-network:
+    driver: bridge

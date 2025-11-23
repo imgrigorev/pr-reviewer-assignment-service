@@ -1,1 +1,5 @@
-# pr-reviewer-assignment-service
+## Для запуска приложения используйте следующую команду:
+
+```bash
+docker compose up
+```
